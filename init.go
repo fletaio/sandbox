@@ -10,6 +10,7 @@ import (
 	"github.com/fletaio/core/amount"
 	"github.com/fletaio/core/consensus"
 	"github.com/fletaio/core/data"
+	"github.com/fletaio/core/event"
 	"github.com/fletaio/core/transaction"
 
 	_ "github.com/fletaio/extension/account_tx"
@@ -39,12 +40,19 @@ const (
 	FormulationAccountType = account.Type(60)
 )
 
+// event_type event types
+const (
+	// Game Events
+	AddCountEventType      = event.Type(1)
+	CreateAccountEventType = event.Type(2)
+)
+
 type txFee struct {
 	Type transaction.Type
 	Fee  *amount.Amount
 }
 
-func initChainComponent(act *data.Accounter, tran *data.Transactor) error {
+func initChainComponent(act *data.Accounter, tran *data.Transactor, evt *data.Eventer) error {
 	TxFeeTable := map[string]*txFee{
 		"sandbox.CreateAccount":       &txFee{CreateAccountTransctionType, amount.COIN.MulC(10)},
 		"consensus.CreateFormulation": &txFee{CreateFormulationTransctionType, amount.COIN.MulC(50000)},
@@ -67,11 +75,22 @@ func initChainComponent(act *data.Accounter, tran *data.Transactor) error {
 			return err
 		}
 	}
+
+	EventTable := map[string]event.Type{
+		"sandbox.AddCount":      AddCountEventType,
+		"sandbox.CreateAccount": CreateAccountEventType,
+	}
+	for name, t := range EventTable {
+		if err := evt.RegisterType(name, t); err != nil {
+			log.Println(name, t, err)
+			return err
+		}
+	}
 	return nil
 }
 
-func initGenesisContextData(act *data.Accounter, tran *data.Transactor) (*data.ContextData, error) {
-	loader := data.NewEmptyLoader(act.ChainCoord(), act, tran)
+func initGenesisContextData(act *data.Accounter, tran *data.Transactor, evt *data.Eventer) (*data.ContextData, error) {
+	loader := data.NewEmptyLoader(act.ChainCoord(), act, tran, evt)
 	ctd := data.NewContextData(loader, nil)
 
 	acg := &accCoordGenerator{}

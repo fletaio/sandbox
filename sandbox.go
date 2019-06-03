@@ -51,7 +51,7 @@ const (
 	AddCountTransactionType = transaction.Type(11)
 )
 
-func initSandboxComponent(act *data.Accounter, tran *data.Transactor) error {
+func initSandboxComponent(act *data.Accounter, tran *data.Transactor, evt *data.Eventer) error {
 	TxFeeTable := map[string]*txFee{
 		"sandbox.AddCount": &txFee{AddCountTransactionType, amount.COIN.MulC(10)},
 		// ADD YOUR OWN TRANSACTION TO HERE

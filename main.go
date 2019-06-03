@@ -105,21 +105,22 @@ func main() {
 		GenCoord := common.NewCoordinate(0, 0)
 		act := data.NewAccounter(GenCoord)
 		tran := data.NewTransactor(GenCoord)
-		if err := initChainComponent(act, tran); err != nil {
+		evt := data.NewEventer(GenCoord)
+		if err := initChainComponent(act, tran, evt); err != nil {
 			panic(err)
 		}
-		if err := initSandboxComponent(act, tran); err != nil {
+		if err := initSandboxComponent(act, tran, evt); err != nil {
 			panic(err)
 		}
 
-		GenesisContextData, err := initGenesisContextData(act, tran)
+		GenesisContextData, err := initGenesisContextData(act, tran, evt)
 		if err != nil {
 			panic(err)
 		}
 
 		StoreRoot := "./observer/" + common.NewPublicHash(obkey.PublicKey()).String()
 
-		ks, err := kernel.NewStore(StoreRoot+"/kernel", 1, act, tran, true)
+		ks, err := kernel.NewStore(StoreRoot+"/kernel", 1, act, tran, evt, true)
 		if err != nil {
 			panic(err)
 		}
@@ -158,14 +159,15 @@ func main() {
 		GenCoord := common.NewCoordinate(0, 0)
 		act := data.NewAccounter(GenCoord)
 		tran := data.NewTransactor(GenCoord)
-		if err := initChainComponent(act, tran); err != nil {
+		evt := data.NewEventer(GenCoord)
+		if err := initChainComponent(act, tran, evt); err != nil {
 			panic(err)
 		}
-		if err := initSandboxComponent(act, tran); err != nil {
+		if err := initSandboxComponent(act, tran, evt); err != nil {
 			panic(err)
 		}
 
-		GenesisContextData, err := initGenesisContextData(act, tran)
+		GenesisContextData, err := initGenesisContextData(act, tran, evt)
 		if err != nil {
 			panic(err)
 		}
@@ -174,7 +176,7 @@ func main() {
 
 		//os.RemoveAll(StoreRoot)
 
-		ks, err := kernel.NewStore(StoreRoot+"/kernel", 1, act, tran, true)
+		ks, err := kernel.NewStore(StoreRoot+"/kernel", 1, act, tran, evt, true)
 		if err != nil {
 			panic(err)
 		}

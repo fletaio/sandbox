@@ -93,8 +93,20 @@ func init() {
 				return err
 			}
 			ctx.SetAccountData(tx.Address, []byte("game"), buffer.Bytes())
-			ctx.Commit(sn)
 
+			e, err := ctx.Eventer().NewByTypeName("sandbox.AddCount")
+			if err != nil {
+				return err
+			}
+			ev := e.(*AddCountEvent)
+			ev.Base.Coord_ = coord
+			ev.Address = tx.Address
+			ev.Count = tx.Count
+			ev.TotalCount = gd.Count
+
+			ctx.EmitEvent(e)
+
+			ctx.Commit(sn)
 			return nil
 		}()
 

@@ -79,17 +79,15 @@ func init() {
 			return nil, err
 		}
 
-		func() {
+		func() error {
 			sn := ctx.Snapshot()
 			defer ctx.Revert(sn)
 
 			addr := common.NewAddress(coord, 0)
 			if is, err := ctx.IsExistAccount(addr); err != nil {
-				//log.Println(err)
-				return
+				return err
 			} else if is {
-				//log.Println(ErrExistAddress)
-				return
+				return ErrExistAddress
 			}
 
 			KeyHashID := append(PrefixKeyHash, tx.KeyHash[:]...)
@@ -97,18 +95,15 @@ func init() {
 
 			var rootAddress common.Address
 			if bs := ctx.AccountData(rootAddress, KeyHashID); len(bs) > 0 {
-				//log.Println(ErrExistKeyHash)
-				return
+				return ErrExistKeyHash
 			}
 			if bs := ctx.AccountData(rootAddress, UserIDHashID); len(bs) > 0 {
-				//log.Println(ErrExistKeyHash)
-				return
+				return ErrExistKeyHash
 			}
 
 			a, err := ctx.Accounter().NewByTypeName("sandbox.Account")
 			if err != nil {
-				//log.Println(err)
-				return
+				return err
 			}
 			acc := a.(*Account)
 			acc.Address_ = addr
@@ -118,8 +113,7 @@ func init() {
 			gd := NewGameData()
 			var buffer bytes.Buffer
 			if _, err := gd.WriteTo(&buffer); err != nil {
-				//log.Println(err)
-				return
+				return err
 			}
 			ctx.SetAccountData(addr, []byte("game"), buffer.Bytes())
 
@@ -135,7 +129,19 @@ func init() {
 				ctx.SetAccountData(addr, []byte("utxo"+strconv.Itoa(i)), util.Uint64ToBytes(id))
 			}
 
+			e, err := ctx.Eventer().NewByTypeName("sandbox.CreateAccount")
+			if err != nil {
+				return err
+			}
+			ev := e.(*CreateAccountEvent)
+			ev.Base.Coord_ = coord
+			ev.Address = addr
+
+			ctx.EmitEvent(e)
+
 			ctx.Commit(sn)
+
+			return nil
 		}()
 
 		var rootAddress common.Address
