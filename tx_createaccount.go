@@ -88,6 +88,10 @@ func init() {
 				return err
 			} else if is {
 				return ErrExistAddress
+			} else if isn, err := ctx.IsExistAccountName(tx.UserID); err != nil {
+				return err
+			} else if isn {
+				return ErrExistAccountName
 			}
 
 			KeyHashID := append(PrefixKeyHash, tx.KeyHash[:]...)

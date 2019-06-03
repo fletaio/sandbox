@@ -20,5 +20,6 @@ var (
 	ErrExistAddress                = errors.New("exist address")
 	ErrExistKeyHash                = errors.New("exist key hash")
 	ErrExistUserID                 = errors.New("exist userid")
+	ErrExistAccountName            = errors.New("exist account name")
 	ErrQueueFull                   = errors.New("queue full")
 )
