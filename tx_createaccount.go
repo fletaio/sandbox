@@ -107,6 +107,7 @@ func init() {
 			}
 			acc := a.(*Account)
 			acc.Address_ = addr
+			acc.Name_ = tx.UserID
 			acc.KeyHash = tx.KeyHash
 			ctx.CreateAccount(acc)
 
