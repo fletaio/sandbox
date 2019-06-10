@@ -90,6 +90,12 @@ func initChainComponent(act *data.Accounter, tran *data.Transactor, evt *data.Ev
 }
 
 func initGenesisContextData(act *data.Accounter, tran *data.Transactor, evt *data.Eventer) (*data.ContextData, error) {
+	consensus.SetFormulatorPolicy(act.ChainCoord(), &consensus.FormulatorPolicy{
+		CreateFormulationAmount: amount.NewCoinAmount(200000, 0),
+		OmegaRequiredLockBlocks: 5184000,
+		SigmaRequiredLockBlocks: 5184000,
+	})
+
 	loader := data.NewEmptyLoader(act.ChainCoord(), act, tran, evt)
 	ctd := data.NewContextData(loader, nil)
 
