@@ -12,6 +12,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/fletaio/framework/router/evilnode"
+
 	"github.com/fletaio/common"
 	"github.com/fletaio/common/hash"
 	"github.com/fletaio/common/util"
@@ -199,6 +201,9 @@ func main() {
 			Router: router.Config{
 				Network: "tcp",
 				Port:    7000,
+				EvilNodeConfig: evilnode.Config{
+					StorePath: StoreRoot + "/router",
+				},
 			},
 			Peer: peer.Config{
 				StorePath: StoreRoot + "/peers",
@@ -335,8 +340,8 @@ func main() {
 		KeyHashID := append(PrefixKeyHash, pubhash[:]...)
 
 		loader := GameKernel.Loader()
-		var rootAddress common.Address
-		if bs := loader.AccountData(rootAddress, KeyHashID); len(bs) > 0 {
+		var zeroAddress common.Address
+		if bs := loader.AccountData(zeroAddress, KeyHashID); len(bs) > 0 {
 			var addr common.Address
 			copy(addr[:], bs)
 			utxos := []uint64{}
@@ -379,8 +384,8 @@ func main() {
 
 		var TxHash hash.Hash256
 		loader := GameKernel.Loader()
-		var rootAddress common.Address
-		if bs := loader.AccountData(rootAddress, KeyHashID); len(bs) > 0 {
+		var zeroAddress common.Address
+		if bs := loader.AccountData(zeroAddress, KeyHashID); len(bs) > 0 {
 			var addr common.Address
 			copy(addr[:], bs)
 			utxos := []uint64{}
@@ -393,7 +398,7 @@ func main() {
 			}
 			return c.JSON(http.StatusOK, res)
 		}
-		if bs := loader.AccountData(rootAddress, UserIDHashID); len(bs) > 0 {
+		if bs := loader.AccountData(zeroAddress, UserIDHashID); len(bs) > 0 {
 			return ErrExistUserID
 		}
 
@@ -409,7 +414,7 @@ func main() {
 
 		cnid := atomic.AddUint64(&CreateAccountChannelID, 1) % CreateAccountChannelSize
 
-		utxoid := util.BytesToUint64(loader.AccountData(rootAddress, []byte("utxo"+strconv.FormatUint(cnid, 10))))
+		utxoid := util.BytesToUint64(loader.AccountData(zeroAddress, []byte("utxo"+strconv.FormatUint(cnid, 10))))
 
 		tx := t.(*CreateAccountTx)
 		tx.Timestamp_ = uint64(time.Now().UnixNano())
@@ -438,8 +443,8 @@ func main() {
 				if SentHeight < height {
 					SentHeight = height
 
-					var rootAddress common.Address
-					if bs := loader.AccountData(rootAddress, KeyHashID); len(bs) > 0 {
+					var zeroAddress common.Address
+					if bs := loader.AccountData(zeroAddress, KeyHashID); len(bs) > 0 {
 						var addr common.Address
 						copy(addr[:], bs)
 						utxos := []uint64{}

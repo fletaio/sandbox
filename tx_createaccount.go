@@ -97,11 +97,11 @@ func init() {
 			KeyHashID := append(PrefixKeyHash, tx.KeyHash[:]...)
 			UserIDHashID := append(PrefixUserID, []byte(tx.UserID)...)
 
-			var rootAddress common.Address
-			if bs := ctx.AccountData(rootAddress, KeyHashID); len(bs) > 0 {
+			var zeroAddress common.Address
+			if bs := ctx.AccountData(zeroAddress, KeyHashID); len(bs) > 0 {
 				return ErrExistKeyHash
 			}
-			if bs := ctx.AccountData(rootAddress, UserIDHashID); len(bs) > 0 {
+			if bs := ctx.AccountData(zeroAddress, UserIDHashID); len(bs) > 0 {
 				return ErrExistKeyHash
 			}
 
@@ -122,8 +122,8 @@ func init() {
 			}
 			ctx.SetAccountData(addr, []byte("game"), buffer.Bytes())
 
-			ctx.SetAccountData(rootAddress, KeyHashID, addr[:])
-			ctx.SetAccountData(rootAddress, UserIDHashID, addr[:])
+			ctx.SetAccountData(zeroAddress, KeyHashID, addr[:])
+			ctx.SetAccountData(zeroAddress, UserIDHashID, addr[:])
 
 			for i := 0; i < GameCommandChannelSize; i++ {
 				id := transaction.MarshalID(coord.Height, coord.Index, uint16(i+1))
@@ -149,17 +149,17 @@ func init() {
 			return nil
 		}()
 
-		var rootAddress common.Address
+		var zeroAddress common.Address
 		for i := 0; i < CreateAccountChannelSize; i++ {
 			did := []byte("utxo" + strconv.Itoa(i))
-			oldid := util.BytesToUint64(ctx.AccountData(rootAddress, did))
+			oldid := util.BytesToUint64(ctx.AccountData(zeroAddress, did))
 			if oldid == tx.Vin[0].ID() {
 				id := transaction.MarshalID(coord.Height, coord.Index, 0)
 				ctx.CreateUTXO(id, &transaction.TxOut{
 					Amount:     amount.NewCoinAmount(0, 0),
 					PublicHash: utxo.PublicHash,
 				})
-				ctx.SetAccountData(rootAddress, did, util.Uint64ToBytes(id))
+				ctx.SetAccountData(zeroAddress, did, util.Uint64ToBytes(id))
 				break
 			}
 		}
